@@ -2,32 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&family=JetBrains+Mono&display=swap">
   <link rel="stylesheet" href="notes.css" />
 </head>
 <body>
-  <button id="open-notes" class="fab" aria-haspopup="dialog" aria-controls="notes-popup" title="Notes (Ctrl+Shift+N)">✎ Notes</button>
+  <main class="hint">
+    <h1>Notes</h1>
+    <p>A colorful sticky-note popup with colors, pins, #tags, checklists, due dates, archive and trash. Click <strong>✎ Notes</strong> or press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd>.</p>
+    <p>Notes are saved in this browser only.</p>
+  </main>
+
+  <button id="open-notes" class="fab" aria-haspopup="dialog" aria-controls="notes-popup" title="Notes (Ctrl+Shift+N)">✎ Notes<span class="badge" id="fab-count">0</span></button>
 
   <div id="notes-backdrop" class="backdrop" hidden></div>
   <div id="notes-popup" class="popup" role="dialog" aria-modal="true" aria-labelledby="notes-title" hidden>
     <header class="popup-header">
-      <h2 id="notes-title">Notes</h2>
-      <button id="close-notes" class="icon-btn" aria-label="Close">×</button>
+      <h2 id="notes-title">✨ Notes</h2>
+      <span class="stats" id="stats"></span>
+      <button class="hbtn" id="layout-btn" title="Toggle grid / list">▦</button>
+      <button class="hbtn" id="io-btn" title="Export / import">⇅</button>
+      <button class="hbtn" id="help-btn" title="Shortcuts & tips">?</button>
+      <button class="hbtn" id="close-notes" aria-label="Close">✕</button>
     </header>
 
-    <form id="note-form" class="note-form">
-      <textarea id="note-input" rows="3" placeholder="Write a note… (Ctrl+Enter to save)" required></textarea>
-      <div class="form-actions">
-        <button type="button" id="cancel-edit" class="btn secondary" hidden>Cancel</button>
-        <button type="submit" id="save-note" class="btn">Add note</button>
-      </div>
-    </form>
+    <div class="body">
+      <section class="panel" id="help-panel" hidden>
+        <h4>Tips</h4>
+        <div class="help-grid">
+          <span><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd></span><span>Open / close notes</span>
+          <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span>Save the note</span>
+          <span><kbd>/</kbd></span><span>Jump to search</span>
+          <span><kbd>Esc</kbd></span><span>Cancel edit, then close</span>
+          <span><code>#idea</code></span><span>Add a tag, then click it to filter</span>
+          <span><code>- [ ] task</code></span><span>Checklist item you can tick off</span>
+          <span><code>**bold** *italic* `code`</code></span><span>Light formatting; links become clickable</span>
+        </div>
+      </section>
 
-    <input id="note-search" class="search" type="search" placeholder="Search notes" aria-label="Search notes" />
-    <ul id="note-list" class="note-list"></ul>
-    <p id="empty-state" class="empty" hidden>No notes yet.</p>
+      <section class="panel" id="io-panel" hidden>
+        <h4>Export / import</h4>
+        <div class="row">
+          <button class="btn" id="copy-export">Copy all as JSON</button>
+          <button class="btn secondary" id="copy-md">Copy as Markdown</button>
+          <label class="btn secondary">Import .json file<input type="file" id="import-file" accept=".json,application/json" hidden></label>
+          <button class="btn secondary" id="import-text">Import pasted JSON</button>
+        </div>
+        <textarea id="io-text" aria-label="JSON" placeholder="Exported JSON appears here. Paste JSON here to import."></textarea>
+      </section>
+
+      <form id="note-form" class="editor">
+        <input type="text" id="note-title" placeholder="Title" aria-label="Title" maxlength="120">
+        <textarea id="note-input" rows="3" placeholder="Write a note… #tags, - [ ] tasks, **bold**" aria-label="Note"></textarea>
+        <div class="toolbar">
+          <div class="swatches" id="swatches" role="group" aria-label="Color"></div>
+          <button type="button" class="tbtn" id="add-check" title="Insert checklist item">☑ Task</button>
+          <button type="button" class="tbtn" id="pin-toggle" aria-pressed="false" title="Pin">📌</button>
+          <input type="date" class="due-input" id="note-due" aria-label="Due date" title="Due date">
+          <span class="sep"></span>
+          <span class="count" id="count">0 words</span>
+          <button type="button" id="cancel-edit" class="btn secondary" hidden>Cancel</button>
+          <button type="submit" id="save-note" class="btn">Add note</button>
+        </div>
+      </form>
+
+      <div class="views" id="views"></div>
+      <div class="views" id="tags"></div>
+
+      <div class="controls">
+        <input id="note-search" class="search" type="search" placeholder="🔍 Search notes  ( / )" aria-label="Search notes">
+        <select id="sort" aria-label="Sort">
+          <option value="updated">Recently edited</option>
+          <option value="created">Newest first</option>
+          <option value="due">Due date</option>
+          <option value="title">Title A–Z</option>
+          <option value="color">Color</option>
+        </select>
+        <select id="color-filter" aria-label="Filter by color"><option value="">All colors</option></select>
+        <button class="btn danger" id="empty-trash" hidden>Empty trash</button>
+      </div>
+
+      <ul id="note-list" class="note-list"></ul>
+      <p id="empty-state" class="empty" hidden></p>
+    </div>
   </div>
+
+  <div class="toast" id="toast" role="status" hidden><span id="toast-msg"></span><button id="toast-undo">Undo</button></div>
 
   <script src="notes.js"></script>
 </body>
