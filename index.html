@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes</title>
+  <link rel="stylesheet" href="notes.css" />
+</head>
+<body>
+  <button id="open-notes" class="fab" aria-haspopup="dialog" aria-controls="notes-popup" title="Notes (Ctrl+Shift+N)">✎ Notes</button>
+
+  <div id="notes-backdrop" class="backdrop" hidden></div>
+  <div id="notes-popup" class="popup" role="dialog" aria-modal="true" aria-labelledby="notes-title" hidden>
+    <header class="popup-header">
+      <h2 id="notes-title">Notes</h2>
+      <button id="close-notes" class="icon-btn" aria-label="Close">×</button>
+    </header>
+
+    <form id="note-form" class="note-form">
+      <textarea id="note-input" rows="3" placeholder="Write a note… (Ctrl+Enter to save)" required></textarea>
+      <div class="form-actions">
+        <button type="button" id="cancel-edit" class="btn secondary" hidden>Cancel</button>
+        <button type="submit" id="save-note" class="btn">Add note</button>
+      </div>
+    </form>
+
+    <input id="note-search" class="search" type="search" placeholder="Search notes" aria-label="Search notes" />
+    <ul id="note-list" class="note-list"></ul>
+    <p id="empty-state" class="empty" hidden>No notes yet.</p>
+  </div>
+
+  <script src="notes.js"></script>
+</body>
+</html>
